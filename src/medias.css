@@ -455,34 +455,49 @@
     font-family: outfit;
     font-size: 16px;
     font-weight: lighter;
+    
   }
 
-<<<<<<< HEAD
-  /* Sección de contenedor de los iconos*/
-=======
->>>>>>> 217f9e976a68215ea23eac77e676bb5bebd2a5e6
   #iconsContainer {
     width: 70%;
     padding: 2% 3% 2% 5%;
     flex-flow: row wrap;
     display: flex;
-<<<<<<< HEAD
+    justify-content: space-between;
   }
 
   #pencilBtn {
-=======
-    justify-content: flex-end;
+    background: transparent;
+    border:none;
+    font-family: outfit;
+    color: #7b8298;
+    opacity: 80%;
   }
 
-  #pencilBtn {
+ 
+
     
->>>>>>> 217f9e976a68215ea23eac77e676bb5bebd2a5e6
+  #likeBtn {
+    background: transparent;
+    border:none;
+    color: #7b8298;
+    opacity: 80%;
   }
 
-  #likeBtn {
+  #likeBtn:hover{
+    color:red;
   }
+
+
+
 
   #trashBtn {
+    background: transparent;
+    border:none;
+    font-family: outfit;
+    color: #7b8298;
+    opacity: 80%;
+    
   }
 
   .logoutContainer {
