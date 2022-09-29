@@ -15,9 +15,12 @@ import {
   collection,
   addDoc,
   getDocs,
+  Timestamp,
   deleteDoc,
   doc,
-  updateDoc
+  updateDoc,
+  query,
+  onSnapshot,
 } from "https://www.gstatic.com/firebasejs/9.9.3/firebase-firestore.js";
 
 const auth = getAuth();
@@ -38,13 +41,13 @@ const logInWithGoogle = () => {
 //Función para loguearse con email y password (Luego de crear una cuenta)
 const logInWithEmailAndPassword = (email, password) => {
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {      
+    .then((userCredential) => {
       const user = userCredential.user;
       return user;
     })
     .catch((error) => {
       const errorCode = error.code;
-      
+
       //Alertas en caso de error
       switch (errorCode) {
         case "auth/wrong-password":
@@ -78,7 +81,7 @@ const registerAccount = (email, password) => {
     })
     .catch((error) => {
       const errorCode = error.code;
-      
+
       // Alertas en caso de errores
       switch (errorCode) {
         case "auth/email-already-in-use":
@@ -102,7 +105,7 @@ const registerAccount = (email, password) => {
 
 //Observador: permite validar el estado de la sesión de un usuario
 onAuthStateChanged(auth, (user) => {
-  if (user) {    
+  if (user) {
     const uid = user.uid;
     console.log(uid);
     router("#/post");
@@ -133,6 +136,9 @@ const showPost = async (posting) => {
     description: posting,
     uid: auth.currentUser.uid,
     name: auth.currentUser.displayName,
+    date: Timestamp.fromDate(new Date()),
+    likes: [],
+    likesCount: 0,   
   });
   document.getElementById("inputPost").value = "";
   console.log("Document written with ID: ", docRef.id);
@@ -141,7 +147,7 @@ const showPost = async (posting) => {
 //Función para que se impriman los post en el contenedor
 const printPost = async (userPost) => {
   const querySnapshot = await getDocs(collection(db, "Post"));
-  userPost.innerHTML = "";
+  // userPost.innerHTML = "";
   querySnapshot.forEach((doc) => {
     console.log(`${doc.id} => ${doc.data().description}`);
     userPost.innerHTML += `<div id="userPostContainer">
@@ -153,36 +159,33 @@ const printPost = async (userPost) => {
     <button id="pencilBtn" class = "postBtn" data-id="${doc.id}"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
     <button id="likeBtn" class = "postBtn"><i class="fa-solid fa-heart"></i> Likes</button>
     <button id="trashBtn" class = "postBtn" data-id="${doc.id}"><i class="fa-solid fa-trash"></i> Delete</button>
-  </button>
-
-
     </div>
     </div>`;
   });
-
-
 
   //Evento de delegación para darle funcionalidad a los botones
   const iconsContainer = userPost.querySelectorAll(".postBtn");
   iconsContainer.forEach((icon) => {
     icon.addEventListener("click", delegacion);
-    
+
     function delegacion(e) {
-      e.preventDefault();      
+      e.preventDefault();
       const idBtn = e.target.id;
       const idDoc = e.target.getAttribute("data-id");
-      console.log(idDoc);
+      const user = auth.currentUser.uid;
+      console.log("este es el id documento " + idDoc);
+      console.log("este es el usuario " + user);
 
       switch (idBtn) {
         case "trashBtn":
-          deletePost(idDoc);
+          deletePost(idDoc, user);
           console.log("diste click en eliminar");
           break;
-        case "likeBtn":   
+        case "likeBtn":
           console.log("diste click en like");
           break;
         case "pencilBtn":
-          editPosts(idDoc)
+          editPosts(idDoc);
           console.log("diste click en editar");
           break;
       }
@@ -190,13 +193,31 @@ const printPost = async (userPost) => {
   });
 };
 
+//OnSnapShot
+const displayPosts = () => {
+  const consulta = query(collection(db, "Post"));
+  //onsnapshot utiliza observers, 
+  //los observers devuelven resultados mediante callback
+  onSnapshot(consulta, (resultadoConsulta) => {
+    const misPosts = [];
+    resultadoConsulta.forEach((doc) => {
+      // console.log({ doc });
+      // console.log({ data: doc.data() });
 
-
+      //spread operator
+      misPosts.push({ ...doc.data(), id: doc.id });
+    });
+    console.log(misPosts);
+  });
+};
+//postObtenidos es un arreglo
+displayPosts();
 
 //Función borrar datos
 function deletePost(id) {
   deleteDoc(doc(db, "Post", id))
     .then(() => {
+      // location.reload()
       console.log("exito al borrar");
     })
     .catch((error) => {
@@ -206,14 +227,24 @@ function deletePost(id) {
 
 //Función editar
 async function editPosts(id, input) {
-  const postEdit = doc(db, 'Post', id);
+  const postEdit = doc(db, "Post", id);
   await updateDoc(postEdit, {
     description: input,
   });
 }
 
+//Likes
 
-
+// const likesCountRef = (id) => {
+//   onSnapshot(doc(db, "google", id), (doc) => {
+//     const result = doc.data().likes.length;
+//     const divNum = document.getElementById(`${id}-count`);
+//     divNum.textContent = "";
+//     divNum.textContent += result;
+//     console.log(result);
+//     return result;
+//   });
+// };
 
 export {
   app,
@@ -223,5 +254,5 @@ export {
   logInWithEmailAndPassword,
   logout,
   showPost,
-  printPost,  
+  printPost,
 };
