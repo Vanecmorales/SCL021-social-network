@@ -138,29 +138,55 @@ const showPost = async (posting) => {
     name: auth.currentUser.displayName,
     date: Timestamp.fromDate(new Date()),
     likes: [],
-    likesCount: 0,   
+    likesCount: 0,
   });
   document.getElementById("inputPost").value = "";
   console.log("Document written with ID: ", docRef.id);
 };
 
-//Función para que se impriman los post en el contenedor
+//Función para que se impriman los post en el contenedor (OnSnapshot)
+// const printPost = (userPost) => {
+//   onSnapshot(query(collection(db, "Post")), (docs) => {
+//     //userPost.innerHTML = "";
+//     docs.forEach((doc) => {
+//       doc.data();
+//       //console.log(`${doc.id} => ${doc.data().description}`);
+//       userPost.innerHTML += `<div id="userPostContainer">
+//       <div id="containerPost">
+//       <h6 id="userName">${doc.data().name}</h6>
+//       <p id="descriptionPost">${doc.data().description}</p>
+//       </div>
+//       <div id="iconsContainer">
+//       <button id="pencilBtn" class = "postBtn" data-id="${
+//         doc.id
+//       }"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+//       <button id="likeBtn" class = "postBtn"><i class="fa-solid fa-heart"></i> Likes</button>
+//       <button id="trashBtn" class = "postBtn" data-id="${
+//         doc.id
+//       }"><i class="fa-solid fa-trash"></i> Delete</button>
+//       </div>
+//       </div>
+//       </div>`;
+//     });
+//   });
+
+//Función para que se impriman los post en el contenedor (No real time)
 const printPost = async (userPost) => {
   const querySnapshot = await getDocs(collection(db, "Post"));
-  // userPost.innerHTML = "";
+  userPost.innerHTML = "";
   querySnapshot.forEach((doc) => {
     console.log(`${doc.id} => ${doc.data().description}`);
     userPost.innerHTML += `<div id="userPostContainer">
-    <div id="containerPost">
-    <h6 id="userName">${doc.data().name}</h6>
-    <p id="descriptionPost">${doc.data().description}</p>
-    </div>
-    <div id="iconsContainer"> 
-    <button id="pencilBtn" class = "postBtn" data-id="${doc.id}"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-    <button id="likeBtn" class = "postBtn"><i class="fa-solid fa-heart"></i> Likes</button>
-    <button id="trashBtn" class = "postBtn" data-id="${doc.id}"><i class="fa-solid fa-trash"></i> Delete</button>
-    </div>
-    </div>`;
+      <div id="containerPost">
+      <h6 id="userName">${doc.data().name}</h6>
+      <p id="descriptionPost">${doc.data().description}</p>
+      </div>
+      <div id="iconsContainer"> 
+      <button id="pencilBtn" class = "postBtn" data-id="${doc.id}"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+      <button id="likeBtn" class = "postBtn"><i class="fa-solid fa-heart"></i> Likes</button>
+      <button id="trashBtn" class = "postBtn" data-id="${doc.id}"><i class="fa-solid fa-trash"></i> Delete</button>
+      </div>
+      </div>`;
   });
 
   //Evento de delegación para darle funcionalidad a los botones
@@ -169,6 +195,7 @@ const printPost = async (userPost) => {
     icon.addEventListener("click", delegacion);
 
     function delegacion(e) {
+      console.log("delegacion");
       e.preventDefault();
       const idBtn = e.target.id;
       const idDoc = e.target.getAttribute("data-id");
@@ -185,8 +212,8 @@ const printPost = async (userPost) => {
           console.log("diste click en like");
           break;
         case "pencilBtn":
-          editPosts(idDoc);
-          console.log("diste click en editar");
+          editPost(idDoc);
+          console.log("Editar comentario");
           break;
       }
     }
@@ -196,7 +223,7 @@ const printPost = async (userPost) => {
 //OnSnapShot
 const displayPosts = () => {
   const consulta = query(collection(db, "Post"));
-  //onsnapshot utiliza observers, 
+  //onsnapshot utiliza observers,
   //los observers devuelven resultados mediante callback
   onSnapshot(consulta, (resultadoConsulta) => {
     const misPosts = [];
@@ -212,6 +239,15 @@ const displayPosts = () => {
 };
 //postObtenidos es un arreglo
 displayPosts();
+//Función editar
+async function editPost(posting, idDoc) {
+  posting.innerHTML("inputPost").value = posting;
+  const edit = doc(db, "Post", idDoc);
+  await updateDoc(edit, {
+    description: posting,
+  });
+  console.log(editPost, "Editando función");
+}
 
 //Función borrar datos
 function deletePost(id) {
@@ -224,27 +260,6 @@ function deletePost(id) {
       console.log("Hiciste click en eliminar: ", error);
     });
 }
-
-//Función editar
-async function editPosts(id, input) {
-  const postEdit = doc(db, "Post", id);
-  await updateDoc(postEdit, {
-    description: input,
-  });
-}
-
-//Likes
-
-// const likesCountRef = (id) => {
-//   onSnapshot(doc(db, "google", id), (doc) => {
-//     const result = doc.data().likes.length;
-//     const divNum = document.getElementById(`${id}-count`);
-//     divNum.textContent = "";
-//     divNum.textContent += result;
-//     console.log(result);
-//     return result;
-//   });
-// };
 
 export {
   app,
