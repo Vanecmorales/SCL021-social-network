@@ -1,6 +1,6 @@
 # Social Network
 
-## Go Wild Nature
+## Go Wild Nature 🏕️
 
 Go Wild Nature es una red social para amantes de las actividades al aire libre.
 
