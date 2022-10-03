@@ -70,6 +70,15 @@ export function createPost() {
   goButton.textContent = "Go";
   extraContainer.appendChild(goButton);
 
+  // Evento que envía la información ingresada a la base de datos
+  goButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    const posting = document.getElementById("inputPost").value;
+    const userPost = document.getElementById("timelime");
+    showPost(posting);
+    printPost(userPost);
+  });
+
   //Contenedor para cada post
   const timelimeContainer = document.createElement("div");
   timelimeContainer.classList.add("timelimeContainer");
@@ -90,15 +99,6 @@ export function createPost() {
   //Evento para cerrar sesión
   logoutButton.addEventListener("click", () => {
     logout();
-  });
-
-  // Evento que envía la información ingresada a la base de datos
-  goButton.addEventListener("click", (event) => {
-    event.preventDefault();
-    const posting = document.getElementById("inputPost").value;
-    const userPost = document.getElementById("timelime");
-    showPost(posting);
-    printPost(userPost);
   });
 
   return postContainer;

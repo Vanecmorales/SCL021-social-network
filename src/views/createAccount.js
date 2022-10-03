@@ -17,6 +17,7 @@ export function createAccount() {
   backArrow.id = "backLogin";
   headerRegister.appendChild(backArrow);
 
+  //Evento para manipular el historial e ir atrás
   backArrow.addEventListener("click", () => {
     history.back();
   });

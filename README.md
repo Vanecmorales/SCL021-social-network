@@ -42,4 +42,4 @@ Los usuarios entrevistados trasnmitieron la falta de acceso a una plataforma don
 
 ## Ver red social aquí 👇
 
-Link:
+Link: https://gowildnature-f8558.web.app

@@ -38,33 +38,6 @@ const logInWithGoogle = () => {
       return errorCode;
     });
 };
-//Función para loguearse con email y password (Luego de crear una cuenta)
-const logInWithEmailAndPassword = (email, password) => {
-  signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      return user;
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-
-      //Alertas en caso de error
-      switch (errorCode) {
-        case "auth/wrong-password":
-          alert("Wrong password");
-          break;
-        case "auth/user-not-found":
-          alert("The email is not registered");
-          break;
-        case "auth/invalid-email":
-          alert("Verify your email");
-          break;
-        case "auth/internal-error":
-          alert("Enter your password");
-          break;
-      }
-    });
-};
 
 // Función de registro de nuevos usuarios
 const registerAccount = (email, password) => {
@@ -95,6 +68,34 @@ const registerAccount = (email, password) => {
           break;
         case "auth/weak-password":
           alert("Your password must be at least 6 characters");
+          break;
+        case "auth/internal-error":
+          alert("Enter your password");
+          break;
+      }
+    });
+};
+
+//Función para loguearse con email y password (Luego de crear una cuenta)
+const logInWithEmailAndPassword = (email, password) => {
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      return user;
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+
+      //Alertas en caso de no ingresar bien los valores del input
+      switch (errorCode) {
+        case "auth/wrong-password":
+          alert("Wrong password");
+          break;
+        case "auth/user-not-found":
+          alert("The email is not registered");
+          break;
+        case "auth/invalid-email":
+          alert("Verify your email");
           break;
         case "auth/internal-error":
           alert("Enter your password");
@@ -144,7 +145,7 @@ const showPost = async (posting) => {
   console.log("Document written with ID: ", docRef.id);
 };
 
-//Función para que se impriman los post en el contenedor (OnSnapshot)
+//Función para que se impriman los post en el contenedor en tiempo real (OnSnapshot)
 // const printPost = (userPost) => {
 //   onSnapshot(query(collection(db, "Post")), (docs) => {
 //     //userPost.innerHTML = "";
@@ -220,11 +221,11 @@ const printPost = async (userPost) => {
   });
 };
 
-//OnSnapShot
+//OnSnapShot (me permite ver solo en consola lo que está ocurriendo en tiempo real)
 const displayPosts = () => {
   const consulta = query(collection(db, "Post"));
   //onsnapshot utiliza observers,
-  //los observers devuelven resultados mediante callback
+  //los observers devuelven resultados mediante callbacks
   onSnapshot(consulta, (resultadoConsulta) => {
     const misPosts = [];
     resultadoConsulta.forEach((doc) => {
@@ -239,15 +240,6 @@ const displayPosts = () => {
 };
 //postObtenidos es un arreglo
 displayPosts();
-//Función editar
-async function editPost(posting, idDoc) {
-  posting.innerHTML("inputPost").value = posting;
-  const edit = doc(db, "Post", idDoc);
-  await updateDoc(edit, {
-    description: posting,
-  });
-  console.log(editPost, "Editando función");
-}
 
 //Función borrar datos
 function deletePost(id) {
@@ -259,6 +251,16 @@ function deletePost(id) {
     .catch((error) => {
       console.log("Hiciste click en eliminar: ", error);
     });
+}
+
+//Función editar (no fue posible enlazarla)
+async function editPost(posting, idDoc) {
+  posting.innerHTML("inputPost").value = posting;
+  const edit = doc(db, "Post", idDoc);
+  await updateDoc(edit, {
+    description: posting,
+  });
+  console.log(editPost, "Editando función");
 }
 
 export {
